@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Board {
@@ -8,7 +10,7 @@ public class Board {
 
     Board(){
         NewBoard();
-        PrintBoard();
+        PrintBoard(board);
         GenerateScrambler();
     }
 
@@ -52,7 +54,54 @@ public class Board {
 
     public void SolveBoard(){
         System.out.println();
-        System.out.println("global: "+ Heuristic(board));
+        int heuristicInitial = Heuristic(board);
+        System.out.println("global: "+ heuristicInitial);
+
+        int heuristic_i=heuristicInitial;
+        List<BoardSate>[] heuristicArray = new ArrayList[heuristicInitial+1];
+
+        for(int i = 0; i <= heuristicInitial; i++) {
+            heuristicArray[i] = new ArrayList<>();
+        }
+
+        heuristicArray[heuristicInitial].add(new BoardSate(board,".","None", 2, 2));
+
+        System.out.println(heuristicArray[heuristicInitial].get(0).getHistoric());
+
+        while(heuristic_i>=0){
+            System.out.println(heuristic_i+" "+heuristicArray[heuristic_i]);
+            next3Steps(heuristicArray[heuristicInitial].get(0));
+           // System.out.println(PrintBoard(heuristicArray[heuristicInitial].get(0).getBoard()));
+            heuristic_i--;
+        }
+
+    }
+
+    private void next3Steps(BoardSate boardSate){
+        switch(boardSate.previousStep){
+            case "u":
+                System.out.println("u:rdl");
+                break;
+            case "r":
+                System.out.println("r:dlu");
+                break;
+            case "d":
+                System.out.println("d:lur");
+                break;
+            case "l":
+                System.out.println("l:urd");
+                break;
+            default:
+                System.out.println("0:urdl");
+                break;
+        }
+    }
+
+    private void moveVoidTile(BoardSate boardSate,int i, int j){
+        if(boardSate.void_tile_i+i>=0&&boardSate.void_tile_j+j>=0 && boardSate.void_tile_i+i<5&&boardSate.void_tile_j+j<5 ){
+
+
+        }
     }
 
     private void FillAssociateTileFalse(){
@@ -160,7 +209,7 @@ public class Board {
 
     }
 
-    public void PrintBoard() {
+    public void PrintBoard(Tile[][] board) {
         System.out.println("Board :  ");
         for (int i = 0; i<5;i++) {
             for (int j = 0; j < 5; j++) {
