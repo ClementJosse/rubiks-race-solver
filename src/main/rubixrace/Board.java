@@ -1,3 +1,5 @@
+package java;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -7,6 +9,8 @@ public class Board {
     public int nb_red,nb_orange,nb_green,nb_yellow,nb_blue,nb_white;
     public Scrambler scrambler;
     private Boolean[][] associateTile;
+    public List<BoardSate>[] heuristicArray;
+    public int heuristicInitial;
 
     Board(){
         NewBoard();
@@ -36,29 +40,30 @@ public class Board {
         for (int i = 0; i<5;i++){
             for (int j = 0; j<5;j++){
                 if(i==2 && j==2) {
-                    board [2][2] = new Tile(TileColor.EMPTY,0);
+                    board [2][2] = new Tile(TileColor.EMPTY);
                 }
                 else{
                     do{
                         newTileColorNumber= (int)((Math.random() * 6) + 1);
-                        // newTile= new Tile((TileColor.values()[(int) (Math.random() * 6) + 1]),(i*5)+j);
+                        // newTile= new java.main.Tile((java.main.TileColor.values()[(int) (Math.random() * 6) + 1]),(i*5)+j);
                         // System.out.println(newTileColorNumber+ " i"+ i+" j"+j);
                     }while(!isColorPossible(newTileColorNumber));
 
-                    board [i][j] = new Tile((TileColor.values()[newTileColorNumber]),(i*5)+j);
+                    board [i][j] = new Tile((TileColor.values()[newTileColorNumber]));
                 }
 
             }
         }
     }
 
-    public void SolveBoard(){
+
+
+    public void SolveBoard() throws CloneNotSupportedException {
         System.out.println();
-        int heuristicInitial = Heuristic(board);
-        System.out.println("global: "+ heuristicInitial);
+        this.heuristicInitial = Heuristic(board);
 
         int heuristic_i=heuristicInitial;
-        List<BoardSate>[] heuristicArray = new ArrayList[heuristicInitial+1];
+        this.heuristicArray = new ArrayList[heuristicInitial+1];
 
         for(int i = 0; i <= heuristicInitial; i++) {
             heuristicArray[i] = new ArrayList<>();
@@ -66,40 +71,78 @@ public class Board {
 
         heuristicArray[heuristicInitial].add(new BoardSate(board,".","None", 2, 2));
 
-        System.out.println(heuristicArray[heuristicInitial].get(0).getHistoric());
+        //System.out.println(heuristicArray[heuristicInitial].get(0).getHistoric());
 
         while(heuristic_i>=0){
             System.out.println(heuristic_i+" "+heuristicArray[heuristic_i]);
             next3Steps(heuristicArray[heuristicInitial].get(0));
            // System.out.println(PrintBoard(heuristicArray[heuristicInitial].get(0).getBoard()));
-            heuristic_i--;
+            heuristic_i=-1;
         }
 
     }
 
-    private void next3Steps(BoardSate boardSate){
+    private void next3Steps(BoardSate boardSate) throws CloneNotSupportedException {
         switch(boardSate.previousStep){
             case "u":
-                System.out.println("u:rdl");
+                System.out.println("up");
+                //moveVoidTile(boardSate,-1,0,"u");     //up
+                moveVoidTile(boardSate,0,1,"r");      //right
+                moveVoidTile(boardSate,1,0,"d");      //down
+                moveVoidTile(boardSate,0,-1,"l");     //left
                 break;
             case "r":
-                System.out.println("r:dlu");
+                System.out.println("right");
+                moveVoidTile(boardSate,-1,0,"u");     //up
+                //moveVoidTile(boardSate,0,1);      //right
+                moveVoidTile(boardSate,1,0,"d");      //down
+                moveVoidTile(boardSate,0,-1,"l");     //left
                 break;
             case "d":
-                System.out.println("d:lur");
+                System.out.println("down");
+                moveVoidTile(boardSate,-1,0,"u");     //up
+                moveVoidTile(boardSate,0,1,"r");      //right
+                //moveVoidTile(boardSate,1,0,"d");      //down
+                moveVoidTile(boardSate,0,-1,"l");     //left
                 break;
             case "l":
-                System.out.println("l:urd");
+                System.out.println("up");
+                moveVoidTile(boardSate,-1,0,"u");     //up
+                moveVoidTile(boardSate,0,1,"r");      //right
+                moveVoidTile(boardSate,1,0,"d");      //down
+                //moveVoidTile(boardSate,0,-1,"l");     //left
                 break;
             default:
-                System.out.println("0:urdl");
+                System.out.println("default");
+                moveVoidTile(boardSate,-1,0,"u");     //up
+                moveVoidTile(boardSate,0,1,"r");      //right
+                moveVoidTile(boardSate,1,0,"d");      //down
+                moveVoidTile(boardSate,0,-1,"l");     //left
                 break;
         }
+        //vider le board de la liste
     }
 
-    private void moveVoidTile(BoardSate boardSate,int i, int j){
+    private void moveVoidTile(BoardSate boardSate,int i, int j,String nextStep) throws CloneNotSupportedException {
         if(boardSate.void_tile_i+i>=0&&boardSate.void_tile_j+j>=0 && boardSate.void_tile_i+i<5&&boardSate.void_tile_j+j<5 ){
+            //System.out.print(boardSate.getBoard()[boardSate.void_tile_i+i][boardSate.void_tile_j+j].getTileColorString());
+            PrintBoard(boardSate.getBoard());
 
+
+
+
+            BoardSate newBoardState = new BoardSate(boardSate.getBoard(),boardSate.getHistoric(),nextStep, boardSate.void_tile_i, boardSate.void_tile_j);
+
+
+
+            newBoardState.swapVoidTile(i*2,j*2);
+            PrintBoard(newBoardState.getBoard());
+            System.out.println("");
+
+            int h = Heuristic(newBoardState.getBoard());
+            if(h<=heuristicInitial){
+                this.heuristicArray[h].add(newBoardState);
+            }
 
         }
     }
@@ -123,9 +166,11 @@ public class Board {
                 //System.out.println(this.scrambler.scrambler[i][j].getTileColorString()+ "ij: "+ i+" "+ j+ " | "+heuristicTileValue);
 
                 heuristic+=heuristicTileValue;
-                heuristicTileValue=0;
             }
         }
+
+        /*
+        //Print associateTile
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
                 if(associateTile[i][j]){
@@ -137,7 +182,8 @@ public class Board {
             }
             System.out.println();
         }
-
+         */
+        System.out.println("heuristic "+heuristic);
         return heuristic;
 
     }
@@ -149,12 +195,12 @@ public class Board {
         int board_case_i=scrambler_case_i+1;
         int board_case_j=scrambler_case_j+1;
 
-        System.out.print("s"+scrambler.scrambler[scrambler_case_i][scrambler_case_j].getTileColorString()+"b"+board[board_case_i][board_case_j].getTileColorString());
+        //System.out.print("s"+scrambler.scrambler[scrambler_case_i][scrambler_case_j].getTileColorString()+"b"+board[board_case_i][board_case_j].getTileColorString());
 
         if(!associateTile[board_case_i][board_case_j] && Objects.equals(board[board_case_i][board_case_j].getTileColorString(), scrambler.scrambler[scrambler_case_i][scrambler_case_j].getTileColorString())){
 
             associateTile[board_case_i][board_case_j]=true;
-            System.out.println();
+            //System.out.println();
             return 0;
         }
 
@@ -164,7 +210,7 @@ public class Board {
         while(!isTileFinded){
 
             n++;
-            System.out.print("  n "+n+" search :");
+            //System.out.print("  n "+n+" search :");
 
 
             isTileFinded=DiagonalBoardSearch(board_case_i-n,board_case_j,scrambler_case_i,scrambler_case_j,n,1,1);
@@ -178,12 +224,9 @@ public class Board {
             if(!isTileFinded){
                 isTileFinded=DiagonalBoardSearch(board_case_i,board_case_j-n,scrambler_case_i,scrambler_case_j,n,-1,1);
             }
-
-
-
         }
 
-        System.out.println();
+        //System.out.println();
 
         return n;
     }
@@ -195,9 +238,9 @@ public class Board {
     private boolean DiagonalBoardSearch(int case_check_i, int case_check_j, int scrambler_case_i, int scrambler_case_j, int n, int next_i, int next_j){
         for (int i = 0; i < n; i++) {
             if(isCoordsPossible(case_check_i,case_check_j)){
-                System.out.print(board[case_check_i][case_check_j].getTileColorString());
+                //System.out.print(board[case_check_i][case_check_j].getTileColorString());
                 if(!associateTile[case_check_i][case_check_j] && (Objects.equals(board[case_check_i][case_check_j].getTileColorString(), scrambler.scrambler[scrambler_case_i][scrambler_case_j].getTileColorString())) ){
-                    System.out.print("<-");
+                    //System.out.print("<-");
                     associateTile[case_check_i][case_check_j]=true;
                     return true;
                 }
@@ -210,7 +253,7 @@ public class Board {
     }
 
     public void PrintBoard(Tile[][] board) {
-        System.out.println("Board :  ");
+        System.out.println("java.main.Board :  ");
         for (int i = 0; i<5;i++) {
             for (int j = 0; j < 5; j++) {
                 System.out.print(board[i][j].getTileColorString());

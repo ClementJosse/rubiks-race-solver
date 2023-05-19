@@ -1,3 +1,5 @@
+package java;
+
 public class Scrambler {
     public Tile[][] scrambler = new Tile[3][3];
     public int nb_red,nb_orange,nb_green,nb_yellow,nb_blue,nb_white;
@@ -15,11 +17,11 @@ public class Scrambler {
             for (int j = 0; j<3;j++){
                     do{
                         newTileColorNumber= (int)((Math.random() * 6) + 1);
-                        // newTile= new Tile((TileColor.values()[(int) (Math.random() * 6) + 1]),(i*5)+j);
+                        // newTile= new java.main.Tile((java.main.TileColor.values()[(int) (Math.random() * 6) + 1]),(i*5)+j);
                         // System.out.println(newTileColorNumber+ " i"+ i+" j"+j);
                     }while(!isColorPossible(newTileColorNumber));
 
-                    scrambler [i][j] = new Tile((TileColor.values()[newTileColorNumber]),(i*5)+j);
+                    scrambler [i][j] = new Tile((TileColor.values()[newTileColorNumber]));
 
             }
         }
@@ -75,7 +77,7 @@ public class Scrambler {
     }
 
     public void PrintScrambler() {
-        System.out.println("Scrambler :");
+        System.out.println("java.main.Scrambler :");
         for (int i = 0; i<3;i++) {
             for (int j = 0; j < 3; j++) {
                 System.out.print(scrambler[i][j].getTileColorString());

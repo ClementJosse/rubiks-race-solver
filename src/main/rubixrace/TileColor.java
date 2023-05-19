@@ -1,3 +1,5 @@
+package java;
+
 public enum TileColor {
 
     EMPTY("\033[1;95m"+" @ "+"\033[0m"),
@@ -11,7 +13,7 @@ public enum TileColor {
     private String ColoredLetter;
 
     TileColor(String ColoredLetter){
-        // System.out.println("TileColor");
+        // System.out.println("java.main.TileColor");
         this.ColoredLetter=ColoredLetter;
     }
 

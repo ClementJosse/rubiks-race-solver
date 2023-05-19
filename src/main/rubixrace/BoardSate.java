@@ -1,3 +1,5 @@
+package java;
+
 public class BoardSate {
     private Tile[][] board = new Tile[5][5];
     private String historic;
@@ -14,6 +16,16 @@ public class BoardSate {
 
     public Tile[][] getBoard() {
         return board;
+    }
+
+    public void swapVoidTile(int i, int j){
+
+        Tile temp=new Tile(board[void_tile_i+i][void_tile_j+j].getTileColor());
+        System.out.print("avant: "+temp.getTileColorString()+board[void_tile_i][void_tile_j].getTileColorString()+board[void_tile_i+i][void_tile_j+j].getTileColorString());
+        board[void_tile_i][void_tile_j]=temp;
+        board[void_tile_i+i][void_tile_j+j]= new Tile(TileColor.EMPTY);
+        System.out.println("apres: "+temp.getTileColorString()+board[void_tile_i][void_tile_j].getTileColorString()+board[void_tile_i+i][void_tile_j+j].getTileColorString());
+
     }
 
     public String getHistoric() {

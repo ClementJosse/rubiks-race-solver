@@ -1,11 +1,11 @@
+package java;
+
 public class Tile {
     private final TileColor tileColor;
-    private final int tileId;
 
-    public Tile(TileColor tileColor,int tileId){
-        // System.out.println("Tile");
+    public Tile(TileColor tileColor){
+        // System.out.println("java.main.Tile");
         this.tileColor=tileColor;
-        this.tileId=tileId;
     }
 
     public TileColor getTileColor() {
@@ -15,7 +15,4 @@ public class Tile {
         return this.tileColor.getColoredLetter();
     }
 
-    public int getTileId() {
-        return tileId;
-    }
 }
