@@ -1,4 +1,4 @@
-package java;
+package rubixrace;
 
 public enum TileColor {
 

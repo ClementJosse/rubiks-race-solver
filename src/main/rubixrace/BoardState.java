@@ -1,11 +1,13 @@
 package rubixrace;
 
-public class BoardSate {
+public class BoardState {
     private Tile[][] board = new Tile[5][5];
     private String historic;
     public int void_tile_i;
     public int void_tile_j;
-    BoardSate(Tile[][] board, String historic, char nextStep, int void_tile_i, int void_tile_j){
+    public int heuristic;
+
+    BoardState(Tile[][] board, String historic, char nextStep, int void_tile_i, int void_tile_j){
         copyBoardState(board);
         this.historic=historic+nextStep;
         this.void_tile_i = void_tile_i;

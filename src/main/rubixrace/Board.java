@@ -1,16 +1,15 @@
-package java;
+package rubixrace;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Board {
     public Tile[][] board = new Tile[5][5];
     public int nb_red,nb_orange,nb_green,nb_yellow,nb_blue,nb_white;
     public Scrambler scrambler;
     private Boolean[][] associateTile;
-    public List<BoardSate>[] heuristicArray;
-    public int heuristicInitial;
+    public List<BoardState>[] heuristicArray;
+    public BoardStateLinkedList boardStateLinkedList;
+    int indexArray[];
 
     Board(){
         NewBoard();
@@ -59,93 +58,111 @@ public class Board {
 
 
     public void SolveBoard() throws CloneNotSupportedException {
-        System.out.println();
+        /*System.out.println("base heuristic : ");
         this.heuristicInitial = Heuristic(board);
 
-        int heuristic_i=heuristicInitial;
+        currentIndex=heuristicInitial;
         this.heuristicArray = new ArrayList[heuristicInitial+1];
 
-        for(int i = 0; i <= heuristicInitial; i++) {
+        for(int i = 0; i < heuristicInitial+1; i++) {
             heuristicArray[i] = new ArrayList<>();
         }
 
-        heuristicArray[heuristicInitial].add(new BoardSate(board,".","None", 2, 2));
+        heuristicArray[heuristicInitial].add(new BoardSate(board,"",'.', 2, 2));
 
         //System.out.println(heuristicArray[heuristicInitial].get(0).getHistoric());
 
-        while(heuristic_i>=0){
-            System.out.println(heuristic_i+" "+heuristicArray[heuristic_i]);
-            next3Steps(heuristicArray[heuristicInitial].get(0));
-           // System.out.println(PrintBoard(heuristicArray[heuristicInitial].get(0).getBoard()));
-            heuristic_i=-1;
-        }
+        indexArray = new int[heuristicInitial+1];
+        for (int i = 0; i < heuristicInitial+1; i++) {
+            indexArray[i]=0;
+        }*/
+
+        boardStateLinkedList = new BoardStateLinkedList(new BoardState(board,"",'.', 2, 2));
+
+
+
+        System.out.println(boardStateLinkedList.getFirstElementHeuristic());
+
+        int stop=0;
+        do {
+            //System.out.println("indexArray[currentIndex]"+(indexArray[currentIndex]-1));
+            BoardState temp = boardStateLinkedList.getFirstElement();
+            boardStateLinkedList.deleteFirstElement();
+            next3Steps(temp);
+
+            stop++;
+
+            System.out.println("heuristic"+boardStateLinkedList.getFirstElementHeuristic());
+
+            System.out.println();
+        }while(boardStateLinkedList.getFirstElementHeuristic() >1);
+        System.out.println(stop);
+        System.out.println(boardStateLinkedList.getFirstElementHistoric());
+
 
     }
 
-    private void next3Steps(BoardSate boardSate) throws CloneNotSupportedException {
-        switch(boardSate.previousStep){
-            case "u":
+    private void next3Steps(BoardState previousBoardState) throws CloneNotSupportedException {
+        System.out.println("previous step "+ previousBoardState.getPreviousStep());
+        System.out.println("getHistoric "+ previousBoardState.getHistoric());
+
+        switch(previousBoardState.getPreviousStep()){
+            case 'u':
                 System.out.println("up");
-                //moveVoidTile(boardSate,-1,0,"u");     //up
-                moveVoidTile(boardSate,0,1,"r");      //right
-                moveVoidTile(boardSate,1,0,"d");      //down
-                moveVoidTile(boardSate,0,-1,"l");     //left
+                moveVoidTile(previousBoardState,-1,0,'u');     //up
+                moveVoidTile(previousBoardState,0,1,'r');      //right
+                //moveVoidTile(previousBoardSate,1,0,'d');      //down
+                moveVoidTile(previousBoardState,0,-1,'l');     //left
                 break;
-            case "r":
+            case 'r':
                 System.out.println("right");
-                moveVoidTile(boardSate,-1,0,"u");     //up
-                //moveVoidTile(boardSate,0,1);      //right
-                moveVoidTile(boardSate,1,0,"d");      //down
-                moveVoidTile(boardSate,0,-1,"l");     //left
+                moveVoidTile(previousBoardState,-1,0,'u');     //up
+                moveVoidTile(previousBoardState,0,1,'r');      //right
+                moveVoidTile(previousBoardState,1,0,'d');      //down
+                //moveVoidTile(previousBoardSate,0,-1,'l');     //left
                 break;
-            case "d":
+            case 'd':
                 System.out.println("down");
-                moveVoidTile(boardSate,-1,0,"u");     //up
-                moveVoidTile(boardSate,0,1,"r");      //right
-                //moveVoidTile(boardSate,1,0,"d");      //down
-                moveVoidTile(boardSate,0,-1,"l");     //left
+                //moveVoidTile(previousBoardSate,-1,0,'u');     //up
+                moveVoidTile(previousBoardState,0,1,'r');      //right
+                moveVoidTile(previousBoardState,1,0,'d');      //down
+                moveVoidTile(previousBoardState,0,-1,'l');     //left
                 break;
-            case "l":
-                System.out.println("up");
-                moveVoidTile(boardSate,-1,0,"u");     //up
-                moveVoidTile(boardSate,0,1,"r");      //right
-                moveVoidTile(boardSate,1,0,"d");      //down
-                //moveVoidTile(boardSate,0,-1,"l");     //left
+            case 'l':
+                System.out.println("left");
+                moveVoidTile(previousBoardState,-1,0,'u');     //up
+                //moveVoidTile(previousBoardSate,0,1,'r');      //right
+                moveVoidTile(previousBoardState,1,0,'d');      //down
+                moveVoidTile(previousBoardState,0,-1,'l');     //left
                 break;
             default:
                 System.out.println("default");
-                moveVoidTile(boardSate,-1,0,"u");     //up
-                moveVoidTile(boardSate,0,1,"r");      //right
-                moveVoidTile(boardSate,1,0,"d");      //down
-                moveVoidTile(boardSate,0,-1,"l");     //left
+                moveVoidTile(previousBoardState,-1,0,'u');     //up
+                moveVoidTile(previousBoardState,0,1,'r');      //right
+                moveVoidTile(previousBoardState,1,0,'d');      //down
+                moveVoidTile(previousBoardState,0,-1,'l');     //left
                 break;
         }
         //vider le board de la liste
     }
 
-    private void moveVoidTile(BoardSate boardSate,int i, int j,String nextStep) throws CloneNotSupportedException {
-        if(boardSate.void_tile_i+i>=0&&boardSate.void_tile_j+j>=0 && boardSate.void_tile_i+i<5&&boardSate.void_tile_j+j<5 ){
+    private void moveVoidTile(BoardState boardState, int i, int j, char nextStep) {
+        if (boardState.void_tile_i + i >= 0 && boardState.void_tile_j + j >= 0 && boardState.void_tile_i + i < 5 && boardState.void_tile_j + j < 5) {
             //System.out.print(boardSate.getBoard()[boardSate.void_tile_i+i][boardSate.void_tile_j+j].getTileColorString());
-            PrintBoard(boardSate.getBoard());
 
+            BoardState newBoardState = new BoardState(boardState.getBoard(), boardState.getHistoric(), nextStep, boardState.void_tile_i, boardState.void_tile_j);
+            newBoardState.swapVoidTile(i, j);
 
-
-
-            BoardSate newBoardState = new BoardSate(boardSate.getBoard(),boardSate.getHistoric(),nextStep, boardSate.void_tile_i, boardSate.void_tile_j);
-
-
-
-            newBoardState.swapVoidTile(i*2,j*2);
             PrintBoard(newBoardState.getBoard());
-            System.out.println("");
-
-            int h = Heuristic(newBoardState.getBoard());
-            if(h<=heuristicInitial){
-                this.heuristicArray[h].add(newBoardState);
-            }
+            System.out.println(newBoardState.getHistoric());
+            newBoardState.heuristic = Heuristic(newBoardState.getBoard());
+//            System.out.println("heuristic " + newBoardState.heuristic);
+//            System.out.println("");
+            boardStateLinkedList.add(newBoardState);
 
         }
     }
+
 
     private void FillAssociateTileFalse(){
         for (int i = 0; i < 5; i++) {
@@ -163,27 +180,13 @@ public class Board {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 heuristicTileValue=HeuristicForTile(board,i,j,associateTile);
-                //System.out.println(this.scrambler.scrambler[i][j].getTileColorString()+ "ij: "+ i+" "+ j+ " | "+heuristicTileValue);
 
                 heuristic+=heuristicTileValue;
             }
         }
 
-        /*
-        //Print associateTile
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                if(associateTile[i][j]){
-                    System.out.print("X ");
-                }
-                else{
-                    System.out.print("- ");
-                }
-            }
-            System.out.println();
-        }
-         */
-        System.out.println("heuristic "+heuristic);
+
+
         return heuristic;
 
     }
@@ -200,7 +203,6 @@ public class Board {
         if(!associateTile[board_case_i][board_case_j] && Objects.equals(board[board_case_i][board_case_j].getTileColorString(), scrambler.scrambler[scrambler_case_i][scrambler_case_j].getTileColorString())){
 
             associateTile[board_case_i][board_case_j]=true;
-            //System.out.println();
             return 0;
         }
 
@@ -226,7 +228,6 @@ public class Board {
             }
         }
 
-        //System.out.println();
 
         return n;
     }
@@ -253,7 +254,6 @@ public class Board {
     }
 
     public void PrintBoard(Tile[][] board) {
-        System.out.println("java.main.Board :  ");
         for (int i = 0; i<5;i++) {
             for (int j = 0; j < 5; j++) {
                 System.out.print(board[i][j].getTileColorString());

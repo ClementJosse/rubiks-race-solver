@@ -1,4 +1,4 @@
-package java;
+package rubixrace;
 
 public class Scrambler {
     public Tile[][] scrambler = new Tile[3][3];
