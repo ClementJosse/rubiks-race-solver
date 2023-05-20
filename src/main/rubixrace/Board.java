@@ -10,6 +10,7 @@ public class Board {
     public List<BoardState>[] heuristicArray;
     public BoardStateLinkedList boardStateLinkedList;
     int indexArray[];
+    int actualLowestHeuristic;
 
     Board(){
         NewBoard();
@@ -23,7 +24,6 @@ public class Board {
     }
 
     private void NewBoard() {
-        // System.out.println("NewBoard");
 
         nb_red=4;
         nb_orange=4;
@@ -44,8 +44,6 @@ public class Board {
                 else{
                     do{
                         newTileColorNumber= (int)((Math.random() * 6) + 1);
-                        // newTile= new java.main.Tile((java.main.TileColor.values()[(int) (Math.random() * 6) + 1]),(i*5)+j);
-                        // System.out.println(newTileColorNumber+ " i"+ i+" j"+j);
                     }while(!isColorPossible(newTileColorNumber));
 
                     board [i][j] = new Tile((TileColor.values()[newTileColorNumber]));
@@ -58,52 +56,39 @@ public class Board {
 
 
     public void SolveBoard() throws CloneNotSupportedException {
-        /*System.out.println("base heuristic : ");
-        this.heuristicInitial = Heuristic(board);
+        BoardState initialBoardState = new BoardState(board,"",'.', 2, 2);
+        boardStateLinkedList = new BoardStateLinkedList(initialBoardState);
 
-        currentIndex=heuristicInitial;
-        this.heuristicArray = new ArrayList[heuristicInitial+1];
+        boardStateLinkedList.getFirstElement().heuristic=Heuristic(boardStateLinkedList.getFirstElement().getBoard());
+        int heuristicInitial = boardStateLinkedList.getFirstElement().heuristic;
+        actualLowestHeuristic = 1000;
 
-        for(int i = 0; i < heuristicInitial+1; i++) {
-            heuristicArray[i] = new ArrayList<>();
-        }
-
-        heuristicArray[heuristicInitial].add(new BoardSate(board,"",'.', 2, 2));
-
-        //System.out.println(heuristicArray[heuristicInitial].get(0).getHistoric());
-
-        indexArray = new int[heuristicInitial+1];
-        for (int i = 0; i < heuristicInitial+1; i++) {
-            indexArray[i]=0;
-        }*/
-
-        boardStateLinkedList = new BoardStateLinkedList(new BoardState(board,"",'.', 2, 2));
-
-
-
-        System.out.println(boardStateLinkedList.getFirstElementHeuristic());
-
-        int stop=0;
         do {
+
+            boardStateLinkedList.printAllHeuristicInTheList();
+            System.out.println("actualLowestHeuristic "+actualLowestHeuristic);
             //System.out.println("indexArray[currentIndex]"+(indexArray[currentIndex]-1));
             BoardState temp = boardStateLinkedList.getFirstElement();
             boardStateLinkedList.deleteFirstElement();
+
             next3Steps(temp);
+            scrambler.PrintScrambler();
 
-            stop++;
-
-            System.out.println("heuristic"+boardStateLinkedList.getFirstElementHeuristic());
-
-            System.out.println();
-        }while(boardStateLinkedList.getFirstElementHeuristic() >1);
-        System.out.println(stop);
+        }while(actualLowestHeuristic >0);
+        System.out.println("\n\n");
+        scrambler.PrintScrambler();
+        System.out.println("Initial board:");
+        PrintBoard(board);
+        System.out.println("Solution board:");
+        PrintBoard(boardStateLinkedList.getFirstElement().getBoard());
         System.out.println(boardStateLinkedList.getFirstElementHistoric());
-
-
+        System.out.println("Number of steps "+((boardStateLinkedList.getFirstElementHistoric().length())-1));
+        System.out.println("initial heuristic : "+heuristicInitial);
+        ShowSolutionSteps showSolutionSteps = new ShowSolutionSteps(initialBoardState,boardStateLinkedList.getFirstElementHistoric());
+        showSolutionSteps.ShowSolution();
     }
 
     private void next3Steps(BoardState previousBoardState) throws CloneNotSupportedException {
-        System.out.println("previous step "+ previousBoardState.getPreviousStep());
         System.out.println("getHistoric "+ previousBoardState.getHistoric());
 
         switch(previousBoardState.getPreviousStep()){
@@ -156,9 +141,16 @@ public class Board {
             PrintBoard(newBoardState.getBoard());
             System.out.println(newBoardState.getHistoric());
             newBoardState.heuristic = Heuristic(newBoardState.getBoard());
-//            System.out.println("heuristic " + newBoardState.heuristic);
-//            System.out.println("");
-            boardStateLinkedList.add(newBoardState);
+
+            if(newBoardState.heuristic<actualLowestHeuristic){
+                actualLowestHeuristic=newBoardState.heuristic;
+                System.out.println("NOUVEAU RECORD : "+actualLowestHeuristic);
+                boardStateLinkedList.clear();
+            }
+            if(newBoardState.heuristic<actualLowestHeuristic+8){
+                boardStateLinkedList.add(newBoardState);
+            }
+
 
         }
     }
